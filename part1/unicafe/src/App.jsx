@@ -11,17 +11,17 @@ const StatisticLine = ({ text, value }) => {
 };
 
 const Statistics = ({ stats }) => {
+  const { positive, ...rest } = stats;
   if (stats.total == 0) return <p>{"No feedback given"}</p>;
   return (
     <div>
       <h2>statistics:</h2>
       <table>
         <tbody>
-          <StatisticLine text="good" value={stats.good} />
-          <StatisticLine text="bad" value={stats.bad} />
-          <StatisticLine text="total" value={stats.total} />
-          <StatisticLine text="average" value={stats.average} />
-          <StatisticLine text="positive" value={stats.positive + "%"} />
+          {Object.entries(rest).map(([key, value]) => {
+            return <StatisticLine key={key} text={key} value={value} />;
+          })}
+          {<StatisticLine text="positive" value={positive + "%"} />}
         </tbody>
       </table>
     </div>
