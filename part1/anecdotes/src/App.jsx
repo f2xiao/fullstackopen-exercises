@@ -1,8 +1,8 @@
 import { useState } from "react";
 
-function getRandomNum(max) {
-  return Math.floor(Math.random() * max);
-}
+const getRandomNum = (max) => Math.floor(Math.random() * max);
+const findMostVote = (arr) =>
+  arr.findIndex((value) => value == Math.max.apply(null, arr));
 
 function App() {
   const anecdotes = [
@@ -15,15 +15,33 @@ function App() {
     "Programming without an extremely heavy use of console.log is same as if a doctor would refuse to use x-rays or blood tests when diagnosing patients.",
     "The only way to go fast, is to go well.",
   ];
+  const length = anecdotes.length;
+
+  // create a zero-filled array
+
   const [selected, setSelected] = useState(0);
+  const [max, setMax] = useState(0);
+  const [points, setPoints] = useState(new Array(length).fill(0));
   const handleClick = () => {
-    setSelected(getRandomNum(anecdotes.length));
+    setSelected(getRandomNum(length));
+  };
+
+  const handleVote = () => {
+    const copy = [...points];
+    copy[selected]++;
+    setMax(findMostVote(copy));
+    setPoints(copy);
   };
 
   return (
     <div>
+      <h2>Anecdote of the day</h2>
       <p>{anecdotes[selected]}</p>
+      <p>has {points[selected]} votes</p>
+      <button onClick={handleVote}>vote</button>
       <button onClick={handleClick}>next anecdotes</button>
+      <h2>Anecdote with most votes</h2>
+      <p>{anecdotes[max]}</p>
     </div>
   );
 }
