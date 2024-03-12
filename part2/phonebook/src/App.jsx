@@ -1,13 +1,23 @@
-import { useState } from 'react'
+import axios from 'axios';
+import { useState, useEffect } from 'react'
 
 function App() {
-  const [persons, setPersons] = useState([{
-    name: 'Arto Hellas',
-    number: '040-1234567'
-  }])
+  const [persons, setPersons] = useState([]);
 
   const [newName, setNewName] = useState('');
   const [newNumber, setNewNumber] = useState('');
+
+  useEffect(() => { 
+    console.log('effect');
+    axios.get("http://localhost:3001/persons")
+        .then((response) => { 
+          // console.log(response.data);
+          setPersons(response.data);
+          console.log('promise fullfilled');
+         })
+   }, [])
+
+  console.log('render', persons.length, 'persons');
 
   const areTheseObjectsEqual = (first, second) => {
     const al = Object.getOwnPropertyNames(first);
@@ -76,6 +86,7 @@ function App() {
   return (
     <>
     <h1>Phonebook</h1>
+    <p>filter search with: </p>
     <form onSubmit={addName} >
       <div>
         name: <input required value={newName} onChange={handleNewName} /> <br />
@@ -86,7 +97,7 @@ function App() {
       </div>
     </form>
     <h1>Numbers</h1>
-    {persons.map((person) => <p key={person.name}>{person.name}</p> )}
+    {persons.map((person) => <p key={person.name}>{person.name} {person.number}</p> )}
     </>
   )
 }
