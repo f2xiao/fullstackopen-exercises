@@ -1,105 +1,107 @@
-import axios from 'axios';
-import { useState, useEffect } from 'react'
+import { useState, useEffect } from "react";
+import personService from "./services/person";
+import Person from "./components/Person";
 
 function App() {
   const [persons, setPersons] = useState([]);
 
-  const [newName, setNewName] = useState('');
-  const [newNumber, setNewNumber] = useState('');
+  const [newName, setNewName] = useState("");
+  const [newNumber, setNewNumber] = useState("");
 
-  useEffect(() => { 
-    console.log('effect');
-    axios.get("http://localhost:3001/persons")
-        .then((response) => { 
-          // console.log(response.data);
-          setPersons(response.data);
-          console.log('promise fullfilled');
-         })
-   }, [])
+  useEffect(() => {
+    console.log("effect");
+    const fetchAndRenderPerson = async () => {
+      setPersons(await personService.getAll());
+    };
 
-  console.log('render', persons.length, 'persons');
+    fetchAndRenderPerson();
+  }, []);
 
-  const areTheseObjectsEqual = (first, second) => {
-    const al = Object.getOwnPropertyNames(first);
-    const bl = Object.getOwnPropertyNames(second);
-  
-    // Check if the two list of keys are the same
-    // length. If they are not, we know the objects
-    // are not equal.
-    if (al.length !== bl.length) return false;
-  
-    // Check that all keys from both objects match
-    // are present on both objects.
-    const hasAllKeys = al.every(value => !!bl.find(v => v === value));
-  
-    // If not all the keys match, we know the
-    // objects are not equal.
-    if (!hasAllKeys) return false;
-  
-    // We can now check that the value of each
-    // key matches its corresponding key in the
-    // other object.
-    for (const key of al) if (first[key] !== second[key]) return false;
-  
-    // If the object hasn't return yet, at this
-    // point we know that the objects are the
-    // same
-    return true;
-  }
+  console.log("render", persons.length, "persons");
 
-  const handleNewNumber = (event) => { 
+  const handleNewNumber = (event) => {
     setNewNumber(event.target.value);
-  }
+  };
 
-  const handleNewName = (event) => { 
+  const handleNewName = (event) => {
     setNewName(event.target.value);
-  }
-  
-  const addName = (event) => { 
-    console.log(newName, newNumber)
+  };
+
+  const addName = (event) => {
+    console.log(newName, newNumber);
     event.preventDefault();
     const newPerson = {
       name: newName,
-      number: newNumber
-    }
+      number: newNumber,
+    };
     // check if the new name is in the persons array already
     // if yes, alert
     // if not, add to the persons array
+    // const samePerson = persons.map((person) => {
+    //   areTheseObjectsEqual(person, newPerson);
+    // }).filter((result) => result);
+    // if (samePerson.length > 0) {
+    //   alert(`${newPerson.name} already exists`);
+    //   return;
+    // }
 
-    const sameName = persons.map((person) => person.name == newPerson.name);
-    const sameNumber = persons.map((person) => person.number == newPerson.number);
-  
-    if(sameName.length > 0){
+    const sameName = persons
+      .map((person) => person.name === newPerson.name)
+      .filter((result) => result);
+
+    const sameNumber = persons
+      .map((person) => person.number === newPerson.number)
+      .filter((result) => result);
+
+    console.log(sameName);
+    console.log(sameNumber);
+
+    if (sameName.length > 0) {
       alert(`${newPerson.name} already exists`);
       return;
     }
 
-
-    if(sameNumber.length > 0){
+    if (sameNumber.length > 0) {
       alert(`${newPerson.number} already exists`);
       return;
     }
 
-    setPersons(persons.concat(newPerson))
-   }
+    setPersons(persons.concat(newPerson));
+  };
+
+  const deletePerson = () => {
+    console.log("click");
+  };
 
   return (
     <>
-    <h1>Phonebook</h1>
-    <p>filter search with: </p>
-    <form onSubmit={addName} >
-      <div>
-        name: <input required value={newName} onChange={handleNewName} /> <br />
-        number: <input required value={newNumber} onChange={handleNewNumber} />
-      </div>
-      <div>
-        <button type="submit">add</button>
-      </div>
-    </form>
-    <h1>Numbers</h1>
-    {persons.map((person) => <p key={person.name}>{person.name} {person.number}</p> )}
+      <h1>Phonebook</h1>
+      <p>
+        filter search with: <input type="search" name="" id="" />
+      </p>
+      <form onSubmit={addName}>
+        <div>
+          name: <input required value={newName} onChange={handleNewName} />{" "}
+          <br />
+          number:{" "}
+          <input required value={newNumber} onChange={handleNewNumber} />
+        </div>
+        <div>
+          <button type="submit">add</button>
+        </div>
+      </form>
+      <h1>Numbers</h1>
+      {persons.map((person) => (
+        <Person
+          key={person.name}
+          id={person.id}
+          name={person.name}
+          number={person.number}
+          clickHandler={deletePerson}
+        />
+      ))}
     </>
-  )
+  );
 }
 
-export default App
+export default App;
