@@ -1,16 +1,7 @@
-const Person = ({ id, name, number, clickHandler }) => {
+const Person = ({ name, number }) => {
   return (
-    <p data-id={id}>
+    <p>
       {name} {number}{" "}
-      <span>
-        <button
-          onClick={() => {
-            clickHandler();
-          }}
-        >
-          Delete
-        </button>
-      </span>
     </p>
   );
 };

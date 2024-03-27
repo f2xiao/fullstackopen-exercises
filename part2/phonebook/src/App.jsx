@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import personService from "./services/person";
 import Person from "./components/Person";
+import Button from "./components/Button";
 
 function App() {
   const [persons, setPersons] = useState([]);
@@ -27,50 +28,60 @@ function App() {
     setNewName(event.target.value);
   };
 
-  const addName = (event) => {
-    console.log(newName, newNumber);
+  const addPerson = async (event) => {
+    // console.log(newName, newNumber);
     event.preventDefault();
     const newPerson = {
       name: newName,
       number: newNumber,
     };
+    console.log(newPerson);
     // check if the new name is in the persons array already
-    // if yes, alert
-    // if not, add to the persons array
-    // const samePerson = persons.map((person) => {
-    //   areTheseObjectsEqual(person, newPerson);
-    // }).filter((result) => result);
-    // if (samePerson.length > 0) {
-    //   alert(`${newPerson.name} already exists`);
-    //   return;
-    // }
+    // if yes, confirm to update the number
 
-    const sameName = persons
-      .map((person) => person.name === newPerson.name)
-      .filter((result) => result);
+    const samePerson = persons.find((person) => person.name === newName);
 
-    const sameNumber = persons
-      .map((person) => person.number === newPerson.number)
-      .filter((result) => result);
+    // console.log( samePerson);
 
-    console.log(sameName);
-    console.log(sameNumber);
-
-    if (sameName.length > 0) {
-      alert(`${newPerson.name} already exists`);
-      return;
+    if (samePerson) {
+      if (
+        window.confirm(
+          `${samePerson.name} already exists, do you want to update the number?`
+        )
+      ) {
+        const changedPerson = await personService.updateOne(samePerson.id, {
+          ...samePerson,
+          number: newNumber,
+        });
+        // console.log(returnedPerson);
+        console.log(
+          persons.map((person) =>
+            person.id !== samePerson.id ? person : changedPerson
+          )
+        );
+        setPersons(
+          persons.map((person) =>
+            person.id !== samePerson.id ? person : changedPerson
+          )
+        );
+      }
+    } else {
+      // add the newPerson to the db
+      // re-render with the updated person
+      setPersons(persons.concat(newPerson));
     }
 
-    if (sameNumber.length > 0) {
-      alert(`${newPerson.number} already exists`);
-      return;
-    }
-
-    setPersons(persons.concat(newPerson));
+    setNewName("");
+    setNewNumber("");
   };
 
-  const deletePerson = () => {
-    console.log("click");
+  const deletePerson = async (id) => {
+    if (window.confirm(`Are you sure to delete it`)) {
+      const deletedPerson = await personService.deleteOne(id);
+      console.log(deletedPerson);
+      // re-render by updateing the state of the person
+      setPersons(persons.filter((person) => person.id !== id));
+    }
   };
 
   return (
@@ -79,7 +90,7 @@ function App() {
       <p>
         filter search with: <input type="search" name="" id="" />
       </p>
-      <form onSubmit={addName}>
+      <form onSubmit={addPerson}>
         <div>
           name: <input required value={newName} onChange={handleNewName} />{" "}
           <br />
@@ -92,13 +103,15 @@ function App() {
       </form>
       <h1>Numbers</h1>
       {persons.map((person) => (
-        <Person
-          key={person.name}
-          id={person.id}
-          name={person.name}
-          number={person.number}
-          clickHandler={deletePerson}
-        />
+        <div key={person.name}>
+          <Person name={person.name} number={person.number} />
+          <Button
+            text="Delete"
+            handleClick={() => {
+              deletePerson(person.id);
+            }}
+          />
+        </div>
       ))}
     </>
   );

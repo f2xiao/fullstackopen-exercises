@@ -10,6 +10,26 @@ const getAll = async () => {
   }
 };
 
+const deleteOne = async (id) => {
+  try {
+    const response = await axios.delete(`${baseUrl}/${id}`);
+    return response.data;
+  } catch (error) {
+    console.log("Delete a person error", error);
+  }
+};
+
+const updateOne = async (id, newObj) => {
+  try {
+    const response = await axios.put(`${baseUrl}/${id}`, newObj);
+    return response.data;
+  } catch (error) {
+    console.log("Update a person error", error);
+  }
+};
+
 export default {
   getAll,
+  deleteOne,
+  updateOne,
 };
